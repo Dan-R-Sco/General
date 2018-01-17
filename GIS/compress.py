@@ -1,26 +1,12 @@
-#===================   ========  =======================================================================================  ==========
-                    #EGDB maintenance script
-#Author: Daniel Scott
-#one script to rule them all
-#===================   ========  =======================================================================================  ==========
-
-
-
-
 import arcpy, time, os, sys, csv, string
 
-#===================   ========  =======================================================================================  ==========
-                    ##RECONCILE##
- #one script to rule them all
-#===================   ========  =======================================================================================  ==========
-
 # Set the workspace
-arcpy.env.workspace = r'C:\Users\daniel.scott\Desktop\SDE\SDE@SRV-SQLHA02@CL_DVC.sde'
+arcpy.env.workspace = r'C:\Scripts_2016\XXX_Scripts\Connection\SDE@SRV-SQLXXX@XX_XXX.sde'
 
 # Set a variable for the workspace
 workspace = arcpy.env.workspace
 
-SDEconnection = r'C:\Users\daniel.scott\Desktop\SDE\SDE@SRV-SQLHA02@CL_DVC.sde'
+SDEconnection = r'C:\Scripts_2016\XXX_Scripts\Connection\SDE@SRV-SQLXXX@XX_XXX.sde'
 
 # Set the date.
 Date = time.strftime("%m-%d-%Y", time.localtime())
@@ -29,20 +15,20 @@ Date = time.strftime("%m-%d-%Y", time.localtime())
 Time = time.strftime("%I:%M:%S %p", time.localtime())
 
 # Create a text file for logging
-log = open("C:\Users\daniel.scott\Desktop\CompressLog.txt", "a")
+log = open("C:\Scripts_2016\XXX_Scripts\Log\CompressLog.txt", "a") #open log file compress
 log.write("***********************************************************\n")
 
 # Block new connections to the database.
-#arcpy.AcceptConnections(SDEconnection, False)
+arcpy.AcceptConnections(SDEconnection, False)
 
 # Disconnect all users from the database.
-#arcpy.DisconnectUser(SDEconnection, "ALL")
+arcpy.DisconnectUser(SDEconnection, "ALL")
 
 # Get a list of versions to pass into the ReconcileVersions tool.
 versionList = arcpy.ListVersions(SDEconnection)
 
 # Execute the ReconcileVersions tool.
-reconcileLog = r"C:\Users\daniel.scott\Desktop\ReconcileLog" + Date+ ".txt"
+reconcileLog = r"C:\Scripts_2016\XXX_Scripts\Log\ReconcileLog" + Date+ ".txt"
 arcpy.ReconcileVersions_management(SDEconnection, "ALL_VERSIONS", "sde.QA", versionList, "LOCK_ACQUIRED", "NO_ABORT", "BY_OBJECT", "FAVOR_TARGET_VERSION", "POST", "KEEP_VERSION", reconcileLog)
 #open rec file
 with open (reconcileLog,'r') as RECFL:
@@ -53,13 +39,9 @@ with open (reconcileLog,'r') as RECFL:
 #close rec file
 RECFL.close()
 
-#===================   ========  =======================================================================================  ==========
-                    ##COMPRESS##
-#===================   ========  =======================================================================================  ==========
-
-#identify the log file
-compresslog = 'C:\Users\daniel.scott\Desktop\CompressLog.txt'
-# Run the compress tool on the sde connection.
+#Compress
+compresslog = 'C:\Scripts_2016\XXXX_Scripts\Log\CompressLog.txt'
+# Run the compress tool.
 arcpy.Compress_management(SDEconnection)
 #add messages of compress to log file
 f = open(compresslog, 'a')
@@ -70,11 +52,8 @@ log.close()
 arcpy.AcceptConnections(SDEconnection, True)
 
 
-#===================   ========  =======================================================================================  ==========
-                    ##INDEX##
-#===================   ========  =======================================================================================  ==========
-# Get a list of datasets owned by the dataowner
-workspace = r'C:\Users\daniel.scott\Desktop\DataOwner\Dataowner@SRV-SQLHA02@DVC.sde'
+# Get a list of datasets owned by the admin user
+workspace = r'C:\Scripts_2016\XXXX_Scripts\Connection\Dataowner@SRV-SQLHXXX@XXX.sde'
 arcpy.env.workspace = workspace
 arcpy.env.overwriteOutput = True
 
@@ -82,7 +61,7 @@ def write_log(text,file):
     f = open(file,'a')  #a appends to an existing file if it exists
     f.write("{}\n".format(text)) #write the text to the logfile and move to the next line
     return
-indexlog = 'C:\Users\daniel.scott\Desktop\CompressLog.txt' #name of log file
+indexlog = 'C:\Scripts_2016\XXX_Scripts\Log\CompressLog.txt' #name of log file
 
 # Rebuild indexes and analyze the states and states_lineages system tables
 datasetlist = arcpy.ListDatasets("", "Feature")
@@ -104,20 +83,17 @@ arcpy.ResetEnvironments()
 # Reset a specific environment setting
 arcpy.ClearEnvironment("workspace")
 
-#===================   ========  =======================================================================================  ==========
-                    ##ANALYSE##
-#===================   ========  =======================================================================================  ==========
 def write_log(text,file):
     f = open(file,'a')  #a appends to an existing file if it exists
     f.write("{}\n".format(text)) #write the text to the logfile and move to the next line
     return
-# Get a list of datasets owned by the SDE
+# Get a list of datasets owned by the admin user
 
-workspace = r'C:\Users\daniel.scott\Desktop\SDE\SDE@SRV-SQLHA02@CL_DVC.sde'
+workspace = r'C:\Scripts_2016\XXX_Scripts\Connection\SDE@SRV-SQLXXXX@CL_DVC.sde'
 arcpy.env.workspace = workspace
 arcpy.env.overwriteOutput = True
 
-Analyselog = 'C:\Users\daniel.scott\Desktop\CompressLog.txt' #name of log file
+Analyselog = 'C:\Users\XXXXX.XXXXX\Desktop\CompressLog.txt' #name of log file
 write_log("Starting to analyse feature classes", Analyselog)
 for fc in analysels:
     write_log("Analysing {0}".format(fc), Analyselog)
