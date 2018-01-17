@@ -1,7 +1,7 @@
 # Name: alltablestoExcel.py
 
 # autor: Tomás iglesias
-# mail: tomas.iglesias@qpexploration.com
+# mail:
 
 import arcpy
 
