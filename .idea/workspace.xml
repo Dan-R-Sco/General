@@ -29,16 +29,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lyr3.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Daniel/lyr3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="15" column="16" lean-forward="true" selection-start-line="15" selection-start-column="16" selection-end-line="15" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Layers2.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Daniel/Size/Layers2.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -199,6 +189,11 @@
             <path>
               <item name="PycharmProjects" type="b2602c69:ProjectViewProjectNode" />
               <item name="PycharmProjects" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="PycharmProjects" type="b2602c69:ProjectViewProjectNode" />
+              <item name="PycharmProjects" type="462c0819:PsiDirectoryNode" />
+              <item name="Daniel" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
