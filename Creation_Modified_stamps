@@ -2,6 +2,8 @@
 """
 Created on 17/01/2019
 Access creation and modified properties of a file
+
+Note: ctime() does not refer to creation time on *nix systems, but rather the last time the inode data changed.
 @author: daniel.scott
 """
 
