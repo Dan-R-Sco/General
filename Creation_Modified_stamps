@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Created on 17/01/2019
+Access creation and modified properties of a file
+@author: daniel.scott
+"""
+
+# -*- coding: utf-8 -*-
+
+
+import os.path, time
+
+#insert file into f
+f = 
+
+print("last modified: %s" % time.ctime(os.path.getmtime(file)))
+print("created: %s" % time.ctime(os.path.getctime(file)))
