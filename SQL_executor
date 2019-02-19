@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+# Edit	the	file	query_executor.py, change	the	fields	my_username,	my_password and	my_database with	your	
+# values. and run the python file to receive the query results	
+#
+
+import mysql.connector
+from mysql.connector import Error
+
+# Change the following to your settings.
+my_username='username'
+my_password='password'
+my_database='user_testdb'
+
+try:
+    # Connect to the MySQL database. 
+    connection = mysql.connector.connect(user=my_username, password=my_password, database=my_database)
+    cursor = connection.cursor()
+
+    # Prepare and execute an SQL query i.e.
+    sql = ("SELECT name, number, street, city FROM customers, addresses WHERE customers.address_id = addresses.address_id")
+    cursor.execute(sql)
+
+    # Extract and print out the data in the result set to the console.
+    for (name, number, street, city) in cursor:
+        print(name, number, street, city)
+
+except Error as e:
+    print(e)
+
+finally:
+    cursor.close()
+    connection.close()
