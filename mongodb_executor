@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# Change the database to your one.
+# Run	and	test	that	it	works	
+# Extend	the	program	so	that	names	are	sorted	alphabetically.	The	list	should	print	out	
+# something	like:	
+"""-- The list with names sorted alphabetically:
+{u'DoB': u'1976-03-20', u'_id': ObjectId('5613de51bac9e12a855f509a'),
+u'sex': u'Male', u'name': u'Garry Khan', u'address': u' 133 Market St'}
+{u'DoB': u'1950-11-16', u'_id': ObjectId('5613dde1f4ea49d29e439360'),
+u'name': u'Margaret Jackson', u'address': u'54 James St', u'sex':
+u'Female'}
+{u'DoB': u'1980-12-11', u'_id': ObjectId('5613ddecf4ea49d29e439361'),
+u'name': u'Tony Smith', u'address': u'12 Ocean View', u'sex': u'Male'} """
+
+
+
+import pymongo
+from pymongo import MongoClient
+
+client = MongoClient()
+
+# Change the database to your one and then select the "customers" collection.
+db = client.s1234567_db
+customers = db.customers
+
+# A utility function to print the whole customers collection.
+def CUSTOMERS():
+    for customer in customers.find():
+        print customer
+
+# Print all the customers (documents) in the "customers" collection
+print "--- List of customers ---"
+CUSTOMERS()
+print
+
+#Create new customers and add them to the customers collection
+more_customers = [{"name": "John Smith",
+                   "sex": "Male",
+                  "address": "5 Magnum Road",
+                  "DoB": "1984-01-31"},
+                   {"name":"Garry Khan",
+                    "sex":"Male",
+                    "address": " 133 Market St",
+                    "DoB": "1976-03-20"}]
+customers.insert(more_customers);
+
+print
+print "-- The list after adding new customers"
+CUSTOMERS()
+print
+
+#Search for "John Smith"
+print "--- Searching for John Smith ----"
+for customer in customers.find({"name":"John Smith"}):
+        print customer
+
+#Remove "John Smith" from the customers collections
+query = {"name": "John Smith"}
+customers.remove(query)
+
+print
+print "-- The list after removing John Smith"
+CUSTOMERS()
+print
