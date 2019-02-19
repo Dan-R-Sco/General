@@ -1,0 +1,259 @@
+# -*- coding: utf-8 -*-
+# Photo renaming tool
+#
+# Author: Daniel Scott
+# 2018
+# Description: Tool to read the excel of ksamples output of GVMapper
+# and renames photos according to the sample name and its photo desc
+# Copyright:   (c) Scott 2018
+# coding: utf-8
+# Updated: Can run multiple times over same data and changed way of incrementation number
+#       - updated as converted to_dict as floats
+#       - updated 17/04 to fix multiple descriptions being given by splitting the filename in a more robust way
+
+import xlrd,time, atexit
+import pandas as pd
+from pandas import ExcelWriter
+from pandas import ExcelFile
+import Tkinter
+import glob, os, itertools
+import numpy as np
+import fnmatch, re, math
+from Tkinter import Tk
+from tkFileDialog import askopenfilename, askdirectory
+
+#create UI for user
+window = Tk()
+window.title("Photo renaming tool")
+window.geometry("312x324")
+#add prompt for in file
+print("Please select the excel file with the export from k samples")
+filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+print(filename)
+#add prompt for folder containing photo's
+print("Please select the folder that contains the photos")
+photodir = askdirectory()
+excel = filename
+
+#READ EXCEL
+df = pd.read_excel(excel, sheetname='ACQ_KSamples')
+photodesc1 = (df['SA_PHOTO_DESC_1'])
+print photodesc1
+
+#FIND SAMPLE ID COLUMN
+sampleid = (df['SAMPLEID'])
+print sampleid
+
+#FIND PHOTOID COLUMN
+photoid = (df['SA_IDPHOTO1']).fillna(0)
+print photoid
+
+#want to input int but fails due to commas .astype(int)
+
+my_dict = {'Sample_id':sampleid, 'Photo_id':photoid, 'Photo_Desc':photodesc1}
+
+organised = pd.DataFrame(my_dict)
+print organised
+
+per_row = organised.to_dict('index')
+print per_row
+
+count= 0 
+
+#iterrows key,value gives column and values i.e. photoid 1: 1935, 2:1936 then photo desc etc
+for key, value in per_row.iteritems():
+    count = 0
+    print "listing per_row.iteritems"
+    print  key, value
+    for k,v in value.items():
+        #print photoid and value, sampleid and value and desc and value
+        print "k and v values:"
+        print k,v
+        #below, if the data is held under the column of photo_id
+        if k == 'Photo_id':
+            try:
+                v = int(v)
+            except:
+                v = str(v)
+                if v == 'NaN' or v == "0":
+                    pass
+            print "below is the value of the photo_id key"
+            v = str(v)
+            if v == 'NaN' or v == "0":
+                print "passing value as has no value or is 0"
+                pass
+            else:
+                count = 0
+                #print photo id string
+                #print v
+                #print type(v)
+                for fid in v.split():
+                    print "fid " + fid
+                    removedcommas = re.sub(',', '', fid)
+                    try:
+                        removedcommas = removedcommas.split(".")[0]
+                    except:
+                        continue
+                    print "Photo id cleaned: "+ removedcommas
+                    if not glob.glob(photodir + '/*' + removedcommas + ".JPG"):
+                            print("above photo not found in directory, cannot rename")
+                            continue
+                    else:
+                        #print value['Photo_Desc']
+                        #print value['Photo_Desc']
+                        for source_name in glob.glob(photodir + '/*' + removedcommas + "*"+".JPG"):
+                            path, fullname = os.path.split(source_name)
+                            print path
+                            print fullname
+                            basename, ext = os.path.splitext(fullname)
+                            print basename
+                            print ext
+                            print "dict[Photo_Desc]: ", value['Photo_Desc']
+                            if value['Photo_Desc'] == "S":
+                                desc = "_S"
+                                print desc
+                            elif value['Photo_Desc'] == "C":
+                                desc = "_C"
+                                print desc
+                            elif value['Photo_Desc'] == "D":
+                                desc = "_D"
+                                print desc
+                            elif value['Photo_Desc'] == "P":
+                                desc = "_P"
+                                print desc
+                            else:
+                                print "unable to add photo description to rename as it is not in the predetermined list" 
+                                pass
+                            new_basename = basename.replace(basename, str(value['Sample_id']))
+                            print "new basename is " + new_basename 
+                            target_name = os.path.join(path, '{}{}{}'.format(new_basename, desc, ext))
+                            print target_name
+                            if os.path.isfile(target_name):
+                                expand = 1
+                                while True:
+                                    expand += 1
+                                    #os.path.sep()
+                                    #splitting at point in directory and not file extension
+                                    path, fullname = os.path.split(target_name)
+                                    print "fullname: " + fullname
+                                    new_fullname = fullname.split(".")[0] + "_"+ str(expand) + ".JPG"
+                                    new_target_name = os.path.join(path, new_fullname)
+                                    if os.path.isfile(new_target_name):
+                                        print "new target name already exists, returning to add another string"
+                                        continue
+                                    else:
+                                        target_name = new_target_name
+                                        break
+                            try:
+                                os.rename(source_name,target_name)
+                                continue 
+                            except:
+                                print "Unable to rename"
+        else:
+            continue
+    else:
+        continue
+
+#run through same for second photo id column
+photodesc2 = (df['SA_PHOTO_DESC_2'])
+print photodesc2
+
+#FIND SAMPLE ID COLUMN
+sampleid2 = (df['SAMPLEID'])
+print sampleid2
+
+#FIND PHOTOID COLUMN
+photoid2 = (df['SA_IDPHOTO2']).fillna(0).astype(object)
+print photoid2
+
+my_dict2 = {'Sample_id':sampleid2, 'Photo_id':photoid2, 'Photo_Desc2':photodesc2}
+
+organised2 = pd.DataFrame(my_dict2)
+print organised2
+
+per_row2 = organised2.to_dict('index')
+print per_row2
+
+count= 0 
+for key, value in per_row2.iteritems():
+    count = 0
+    print key, value
+    for k,v in value.items():
+        #print photoid and value, sampleid and value and desc and value
+        #print k,v
+        if k == 'Photo_id':
+            v = str(v)
+            if v == 'NaN' or v == "0":
+                pass
+            else:
+                count = 0
+                #print photo id string
+                #print v
+                #print type(v)
+                for fid in v.split():
+                    print "fid " + fid
+                    removedcommas = re.sub(',', '', fid)
+                    try:
+                        removedcommas = removedcommas.split(".")[0]
+                    except:
+                        continue
+                    print "Photo id cleaned: "+ removedcommas
+                    if not glob.glob(photodir + '/*' + removedcommas + ".JPG"):
+                            print("above photo not found in directory, cannot rename")
+                            continue
+                    else:
+                        #print value['Photo_Desc']
+                        for source_name in glob.glob(photodir + '/*' + removedcommas + "*"+".JPG"):
+                            path, fullname = os.path.split(source_name)
+                            print path
+                            print fullname
+                            basename, ext = os.path.splitext(fullname)
+                            print basename
+                            print ext
+                            print "dict[Photo_Desc2]: ", value['Photo_Desc2']
+                            if value['Photo_Desc2'] == "S":
+                                desc = "_S"
+                                print desc
+                            elif value['Photo_Desc2'] == "C":
+                                desc = "_C"
+                                print desc
+                            elif value['Photo_Desc2'] == "D":
+                                desc = "_D"
+                                print desc
+                            elif value['Photo_Desc2'] == "P":
+                                desc = "_P"
+                                print desc
+                            else:
+                                print "unable to add photo description to rename as it is not in the predetermined list" 
+                                pass
+                            new_basename = basename.replace(basename, str(value['Sample_id']))
+                            print "new basename is " + new_basename 
+                            target_name = os.path.join(path, '{}{}{}'.format(new_basename, desc, ext))
+                            print target_name
+                            if os.path.isfile(target_name):
+                                expand = 1
+                                while True:
+                                    expand += 1
+                                    #os.path.sep()
+                                    #splitting at point in directory and not file extension
+                                    path, fullname = os.path.split(target_name)
+                                    print "fullname: " + fullname
+                                    new_fullname = fullname.split(".")[0] + "_"+ str(expand) + ".JPG"
+                                    new_target_name = os.path.join(path, new_fullname)
+                                    if os.path.isfile(new_target_name):
+                                        print "new target name already exists, returning to add another string"
+                                        continue
+                                    else:
+                                        target_name = new_target_name
+                                        break
+                            try:
+                                os.rename(source_name,target_name)
+                                continue 
+                            except:
+                                print "Unable to rename"
+        else:
+            continue
+    else:
+        continue
+                                
+atexit.register(raw_input, 'Press Enter to continue...')
