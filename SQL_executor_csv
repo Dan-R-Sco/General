@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 11 16:23:06 2019
+A script to connect to a MS SQL database using windows authentication
+
+@author: daniel.scott
+"""
+
+###Connect with windows authentication
+#import the libraries
+import pyodbc, csv
+
+#create the connection using the SQL driver, define to server and the db
+cnxn = pyodbc.connect(r'Driver={SQL Server};Server=SRV-SQL03;Database=QPX_RASTERCATALOG;Trusted_Connection=yes;')
+#create cursor
+cursor = cnxn.cursor()
+
+#Input the query you wish defining which table to connect
+cursor.execute("SELECT * FROM FieldsProjectsSurveys$")
+while 1:
+    row = cursor.fetchone()
+    if not row:
+        break
+    print(row.FullName)
+cnxn.close()
+
+###Write to a csv the results
+
+import pyodbc
+import csv
+
+cnxn = pyodbc.connect(r'Driver={SQL Server};Server=SRV-SQL03;Database=QPX_RASTERCATALOG;Trusted_Connection=yes;')
+cursor = cnxn.cursor()
+
+#define query in the sql variable starting from select
+sql = """\
+SELECT *
+FROM (
+     SELECT *, ROW_NUMBER() OVER (ORDER BY CreationTime) AS RowNum
+     FROM FieldsProjectsSurveys$
+     ) AS MyDerivedTable
+WHERE MyDerivedTable.RowNum BETWEEN 1 AND 1000
+"""
+#define the rows of data you wish to iterate
+rows = cursor.execute(sql)
+
+#with the editor, create a csv in the directory. note wb writes with no lines between the rows and w with blank lines
+with open(r'W:\daniel.scott\FileCatalog\FieldsAndProjects\1to1000.csv', 'wb') as csvfile:
+    #create the writer tool
+    writer = csv.writer(csvfile, delimiter = ',')
+    writer.writerow([x[0] for x in cursor.description])  # column headers
+    #iterate through the rows
+    for row in rows:
+        writer.writerow(row)
+cnxn.close()
+        
