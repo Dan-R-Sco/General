@@ -1,0 +1,130 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr 16 16:15:51 2019
+Renames photos found in a folder according to sampleid found in xls
+
+Creates popup box to select xls and folder containing photos
+
+Requires photoid's to be separated by commas and only one description of photo per row
+
+@author: daniel.scott
+"""
+
+import xlrd,time, atexit
+import pandas as pd
+from pandas import ExcelWriter
+from pandas import ExcelFile
+import Tkinter
+import glob, os, itertools
+import numpy as np
+import fnmatch, re, math
+from Tkinter import Tk
+from tkFileDialog import askopenfilename, askdirectory
+import kitchen
+
+window = Tk()
+window.title("Photo renaming tool")
+window.geometry("315x324")
+
+print("Please select the excel file with the export from k samples")
+filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+print(filename)
+print("Please select the folder that contains the photos")
+#photodir = askdirectory()
+photodir =  r"W:\daniel.scott\phototest\tst\DMP"
+#excel = filename
+excel = r"W:\daniel.scott\phototest\tst\DMP\Team1_DMP_Photo_Renaming_Template.xlsx"
+df = pd.read_excel(excel, sheetname='ACQ_KSamples')
+
+failed = {}
+#########CREATE DF################
+df = pd.read_excel(excel, sheetname='ACQ_KSamples')
+df = df[['SAMPLEID',"SA_IDPHOTO1", "SA_PHOTO_DESC_1","SA_IDPHOTO2",'SA_PHOTO_DESC_2']]
+df
+
+
+########EXTRACT THE PHOTOS INTO THEIR OWN COLUMNS#################
+#photos with one id require a comma after to ensure they get split
+new = df["SA_IDPHOTO1"].str.split(",", expand = True)
+
+newlen = len(new.columns) + len(new2.columns)
+try:
+    columnslist = new + new2
+except:
+    columnslist = new
+
+columnlist = []
+#####ADD THE COLUMNS TO THE DF#################
+for column in columnslist:
+    columnname = 'photoid'+str(column)
+    df[columnname] = new[column].str.strip() #strips spaces before the photo id number
+    columnlist.append(columnname)
+
+df
+columnlist
+
+"""#get sample id from first row
+df.loc[1, 'SAMPLEID']
+for column in columnlist:
+    df.loc[1, "'"+column+"'"]
+#set sampleid as index
+df2 = df.set_index("SAMPLEID", drop = False)
+
+#extracts first row
+sampleid = df.iloc[0]"""
+
+#iterate through each row in df
+for index, row in df.iterrows():
+    #print row
+    sampleid = row['SAMPLEID']
+    photodesc = row['SA_PHOTO_DESC_1']
+    fidlist = []
+    try:
+        fid0 = row[5]
+        fidlist.append(fid0)            
+        fid1 = row[6]
+        fidlist.append(fid1)
+        fid2 = row[7]
+        fidlist.append(fid2)
+        fid3 = row[8]
+        fidlist.append(fid3)
+        fid4 = row[9]
+        fidlist.append(fid4)
+    except IndexError:
+        pass
+    for fidcol in fidlist:
+       # print fidcol
+        try:
+            if not glob.glob(photodir + '/*' + str(fidcol) + ".JPG"):
+                failed.update( {sampleid: fidcol})
+            else:
+                for sourcename in glob.glob(photodir + '//*' + str(fidcol) + ".JPG"):
+                    path, fullname = os.path.split(sourcename)
+                    basename, ext = os.path.splitext(fullname)
+                    print path, fullname, basename, ext
+                    try:
+                        desc = "_" + photodesc
+                        print desc
+                        #desc= kitchen.text.converters.to_unicode(desc, encoding='utf-8', errors='replace', nonstring=None, non_string=None)
+                    except:
+                        failed.update( {sampleid: fidcol})
+                    base,ext = os.path.splitext(fullname)
+                    print base, ext
+                    new_basename = base.replace(base, str(sampleid))
+                    print "new basename is " + new_basename
+                    newbase = new_basename + desc + ext
+                    print newbase
+                    target_name = os.path.join(path, newbase)
+                    print(target_name)
+                    expander = 0
+                    while os.path.exists(target_name):
+                        expander += 1
+                        spl = os.path.splitext(target_name)
+                        expandName = spl[0] + "_" + str(expander) + ".JPG"
+                        target_name = os.path.join(spl, expandName)
+                        #print 'Renaming %s to %s' % (file, dst_file)
+                    print target_name
+                    os.rename(sourcename, target_name)
+
+        except:
+            pass
