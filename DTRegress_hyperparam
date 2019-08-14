@@ -51,3 +51,11 @@ def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):
 for max_leaf_nodes in [5, 50, 500, 5000]:
     my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)
     print("Max leaf nodes: %d  \t\t Mean Absolute Error:  %d" %(max_leaf_nodes, my_mae))
+
+# Store the best value of max_leaf_nodes
+best_tree_size = 500
+
+# Fill in argument to make optimal size and uncomment
+final_model = DecisionTreeRegressor(max_leaf_nodes = best_tree_size, random_state = 0)
+# fit the final model and uncomment the next two lines
+final_model.fit(X, y)
