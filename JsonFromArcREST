@@ -23,3 +23,12 @@ http://portalgeomin.sernageomin.cl:6080/arcgis/rest/services/Yacimiento_Mineria_
 
 #Returns Object Ids
 http://portalgeomin.sernageomin.cl:6080/arcgis/rest/services/Yacimiento_Mineria_Abierta/MapServer/0/query?where=1%3D1&FID=1001-1999&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&gdbVersion=&returnDistinctValues=false&returnIdsOnly=true&returnCountOnly=false&returnExtentOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&multipatchOption=&resultOffset=&resultRecordCount=&f=json
+
+
+#to download files from website - to folder where it was called from as the base
+#website below has tables named tab-002.html up to tab-131.html
+#the "#1" means that for each table, save as new html 
+curl "http://www.ssb.no/english/subjects/06/05/nos_lonn_en/nos_d362_en/tab/tab-[001-131].html" -o "#1.html"
+
+#can also do the same for photos
+curl "http://forklift-photos.com.s3.amazonaws.com/[12-48].jpg" -o "#1.jpg"
