@@ -1,0 +1,31 @@
+#########
+##
+#########
+
+from scipy import stats
+
+#define subplot size
+nr_rows = 7
+nr_cols = 3
+
+fig, axs = plt.subplots(nr_rows, nr_cols, figsize=(nr_cols*3.5,nr_rows*3))
+
+#list features in df
+li_num_feats = list(USAhousing)
+li_not_plot = ['Id', 'SalePrice', 'SalePrice_Log','date']
+#list of features to plot
+li_plot_num_feats = [c for c in list(USAhousing) if c not in li_not_plot]
+
+#iterate 
+for r in range(0,nr_rows):
+    for c in range(0,nr_cols):  
+        i = r*nr_cols+c
+        if i < len(li_plot_num_feats):
+            sns.regplot(USAhousing[li_plot_num_feats[i]], USAhousing['price'], ax = axs[r][c])
+            stp = stats.pearsonr(USAhousing[li_plot_num_feats[i]], USAhousing['price'])
+            #axs[r][c].text(0.4,0.9,"title",fontsize=7)
+            str_title = "r = " + "{0:.2f}".format(stp[0]) + "      " "p = " + "{0:.2f}".format(stp[1])
+            axs[r][c].set_title(str_title,fontsize=11)
+            
+plt.tight_layout()    
+plt.show()
